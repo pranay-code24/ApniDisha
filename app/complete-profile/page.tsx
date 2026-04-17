@@ -59,7 +59,7 @@ export default function CompleteProfile() {
                 <div className={`absolute top-[10%] left-[20%] w-[40%] h-[40%] rounded-full blur-[120px] ${isDark ? 'bg-indigo-900/30' : 'bg-indigo-300/20'}`}></div>
             </div>
 
-            <div className={`relative z-10 w-full max-w-2xl p-8 md:p-12 rounded-[2rem] border shadow-2xl backdrop-blur-xl ${isDark ? 'bg-[#111]/90 border-[#2A2A2A]' : 'bg-white/90 border-slate-200'}`}>
+            <div className={`relative z-10 w-fupll max-w-2xl p-8 md:p-12 rounded-[2rem] border shadow-2xl backdrop-blur-xl ${isDark ? 'bg-[#111]/90 border-[#2A2A2A]' : 'bg-white/90 border-slate-200'}`}>
                 
                 <div className="flex items-center gap-3 mb-8">
                     <div className={`p-2 rounded-xl border ${isDark ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-400' : 'bg-indigo-50 border-indigo-200 text-indigo-600'}`}>

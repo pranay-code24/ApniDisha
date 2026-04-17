@@ -16,7 +16,7 @@ load_dotenv()
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -97,21 +97,23 @@ class JobDetailRequest(BaseModel):
     title: str
     cluster: str 
 
-CLUSTER_IMAGES = {
-    "Realistic": ["photo-1581092918056-0c4c3acd3789", "photo-1498084393753-b411b2d26b34"], 
-    "Investigative": ["photo-1532094349884-543bc11b234d", "photo-1635070041078-e363dbe005cb"], 
-    "Artistic": ["photo-1513364776144-60967b0f800f", "photo-1501084817091-a4f3d1d19e07"], 
-    "Social": ["photo-1529070538774-1843cb3265df", "photo-1573497019940-1c28c88b4f3e"], 
-    "Enterprising": ["photo-1507679799987-c73779587ccf", "photo-1486406146926-c627a92ad1ab"], 
-    "Conventional": ["photo-1454165804606-c3d57bc86b40", "photo-1664575602276-acd073f104c1"], 
-    "Software & Tech": ["photo-1555066931-4365d14bab8c", "photo-1518770660439-4636190af475"],
-    "Medical & Healthcare": ["photo-1584982751601-97d8cb0f66fc", "photo-1505751172876-fa1923c5c528"],
-    "Arts & Design": ["photo-1525909002-1b05e0c869d8", "photo-1501084817091-a4f3d1d19e07"],
-    "Business & Finance": ["photo-1460925895917-afdab827c52f", "photo-1554224155-8d04cb21cd6c"],
-    "Engineering & Core": ["photo-1581092160562-40aa08e78837", "photo-1498084393753-b411b2d26b34"],
-    "Education & Social": ["photo-1509062522246-3755977927d7", "photo-1524178232363-1fb2b075b655"],
-    "Agriculture & Nature": ["photo-1500937386664-56d1dfef3854", "photo-1625246333195-78d9c38ad449"],
-    "Sports & Fitness": ["photo-1534438327276-14e5300c3a48", "photo-1517649763962-0c623066013b"]
+IMAGE_KEYWORDS = {
+    "Realistic": "tools,mechanic",
+    "Investigative": "laboratory,research",
+    "Artistic": "art,creative",
+    "Social": "team,helping",
+    "Enterprising": "business,leadership",
+    "Conventional": "office,data",
+    "Software & Tech": "coding,technology",
+    "Medical & Healthcare": "hospital,medical",
+    "Arts & Design": "design,painting",
+    "Business & Finance": "finance,market",
+    "Engineering & Core": "engineering,industry",
+    "Education & Social": "education,teaching",
+    "Agriculture & Nature": "agriculture,nature",
+    "Sports & Fitness": "sports,fitness",
+    "Defense & Military": "military,army",
+    "Skilled Trades & Construction": "construction,builder"
 }
 
 CLUSTER_MAPPING = {
@@ -126,9 +128,9 @@ CLUSTER_MAPPING = {
 }
 
 def get_relevant_image(key):
-    image_ids = CLUSTER_IMAGES.get(key, ["photo-1451187580459-43490279c0fa"])
-    chosen_id = random.choice(image_ids)
-    return f"https://images.unsplash.com/{chosen_id}?auto=format&fit=crop&w=800&q=80"
+    keywords = IMAGE_KEYWORDS.get(key, "work,career")
+    random_id = random.randint(1, 10000)
+    return f"https://loremflickr.com/800/400/{keywords}?lock={random_id}"
 
 def derive_personality_traits(scores):
     openness = min(10, (scores.get("Artistic", 0) + scores.get("Investigative", 0)) / 2 + 3)
@@ -137,7 +139,6 @@ def derive_personality_traits(scores):
     agreeableness = min(10, scores.get("Social", 0) + 5)
     neuroticism = 4 
     return [openness, conscientiousness, extraversion, agreeableness, neuroticism]
-
 
 BASE_QUESTIONS = {
     "Realistic": [
@@ -583,7 +584,7 @@ async def get_realtime_resources(request_data: dict):
     Rules:
     1. Output strictly in JSON array format. No introductory text, no markdown.
     2. Format: [{{"title": "Course Name", "platform": "YouTube/Coursera/Udemy", "desc": "1 line description", "link": "https://url..."}}]
-    3. Make sure the links are realistic (use search query links if exact URL is unknown, e.g., https://www.youtube.com/results?search_query=Course+Name)
+    3. Make sure the links are realistic (use search query links if exact URL is unknown, e.g., [https://www.youtube.com/results?search_query=Course+Name](https://www.youtube.com/results?search_query=Course+Name))
     """
     
     try:
@@ -641,7 +642,6 @@ async def get_weekly_challenge(request_data: dict):
         return {"success": True, "challenge": challenge_data}
     except Exception as e:
         print(f"Error fetching challenge: {e}")
-        # Fallback safeguard
         return {"success": True, "challenge": {
             "challenge_title": f"{cluster} Explorer Quest",
             "goal": "Learn the fundamentals in one week.",
